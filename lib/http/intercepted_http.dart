@@ -48,6 +48,10 @@ class InterceptedHttp {
   /// retry. This is useful for implementing JWT token expiration
   final RetryPolicy? retryPolicy;
 
+  /// A policy that sanytize the request headers from internal headers
+  /// This is useful when using utility headers like DO_NOT_REPLY and so on.
+  final HeadersSanitizerContract? headersSanitizer;
+
   /// Inner client that is wrapped for intercepting.
   ///
   /// If you don't specify your own client then the library will instantiate
@@ -59,6 +63,7 @@ class InterceptedHttp {
     this.requestTimeout,
     this.onRequestTimeout,
     this.retryPolicy,
+    this.headersSanitizer,
     this.client,
   });
 
@@ -85,6 +90,7 @@ class InterceptedHttp {
     Duration? requestTimeout,
     TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
+    HeadersSanitizerContract? headersSanitizer,
     Client? client,
   }) =>
       InterceptedHttp._internal(
@@ -230,6 +236,7 @@ class InterceptedHttp {
       requestTimeout: requestTimeout,
       onRequestTimeout: onRequestTimeout,
       retryPolicy: retryPolicy,
+      headersSanitizer: headersSanitizer,
       client: this.client,
     );
     try {

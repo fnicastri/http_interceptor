@@ -53,6 +53,10 @@ class InterceptedClient extends BaseClient {
   /// retry. This is useful for implementing JWT token expiration
   final RetryPolicy? retryPolicy;
 
+  /// A policy that sanytize the request headers from internal headers
+  /// This is useful when using utility headers like DO_NOT_REPLY and so on.
+  final HeadersSanitizerContract? headersSanitizer;
+
   int _retryCount = 0;
   late Client _inner;
 
@@ -61,6 +65,7 @@ class InterceptedClient extends BaseClient {
     this.requestTimeout,
     this.onRequestTimeout,
     this.retryPolicy,
+    this.headersSanitizer,
     Client? client,
   }) : _inner = client ?? Client();
 
@@ -86,6 +91,7 @@ class InterceptedClient extends BaseClient {
     Duration? requestTimeout,
     TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
+    HeadersSanitizerContract? headersSanitizer,
     Client? client,
   }) =>
       InterceptedClient._internal(
@@ -93,6 +99,7 @@ class InterceptedClient extends BaseClient {
         requestTimeout: requestTimeout,
         onRequestTimeout: onRequestTimeout,
         retryPolicy: retryPolicy,
+        headersSanitizer: headersSanitizer,
         client: client,
       );
 
@@ -308,7 +315,10 @@ class InterceptedClient extends BaseClient {
         request: interceptedRequest,
       );
     }
-
+    if (headersSanitizer != null) {
+      interceptedRequest =
+          headersSanitizer!.sanitizeHeaders(request: interceptedRequest);
+    }
     return interceptedRequest;
   }
 
